@@ -1,9 +1,10 @@
 
 # currentWorkingDirectory = "D:\\BHT_Class\\Advance_Software\\Project\\berlingeoheatmap\\"
-currentWorkingDirectory = "/mount/src/berlingeoheatmap1/"
+# currentWorkingDirectory = "/mount/src/berlingeoheatmap1/"
 
 # -----------------------------------------------------------------------------
 import os
+currentWorkingDirectory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(currentWorkingDirectory)
 print("Current working directory\n" + os.getcwd())
 
@@ -22,7 +23,7 @@ def main():
     df_geodat_plz   = pd.read_csv(os.path.join("datasets", pdict["file_geodat_plz"]), sep=';', encoding='latin-1')
     
     # Load and preprocess electric charging station dataset
-    df_lstat        = pd.read_csv(os.path.join("datasets", pdict["file_lstations"]), sep=';', encoding='latin-1', skiprows=10)
+    df_lstat        = pd.read_csv(os.path.join("datasets", pdict["file_lstations"]), sep=';', encoding='latin-1', skiprows=10, header=0)
     df_lstat2       = m1.preprop_lstat(df_lstat, df_geodat_plz, pdict)
     gdf_lstat3      = m1.count_plz_occurrences(df_lstat2)
     
