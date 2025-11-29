@@ -1,6 +1,6 @@
 
-currentWorkingDirectory = "D:\\BHT_Class\\Advance_Software\\Project\\berlingeoheatmap\\"
-#currentWorkingDirectory = "/mount/src/berlingeoheatmap1/"
+# currentWorkingDirectory = "D:\\BHT_Class\\Advance_Software\\Project\\berlingeoheatmap\\"
+currentWorkingDirectory = "/mount/src/berlingeoheatmap1/"
 
 # -----------------------------------------------------------------------------
 import os
