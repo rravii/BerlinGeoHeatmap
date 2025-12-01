@@ -65,6 +65,16 @@ def count_plz_occurrences(df_lstat2):
     ).reset_index()
     
     return result_df
+
+# -----------------------------------------------------------------------------
+@ht.timer
+def count_plz_by_kw(df_lstat2):
+    """Counts loading stations per PLZ and KW"""
+    result_df = df_lstat2.groupby(['PLZ', 'KW']).agg(
+        Number=('KW', 'count'),
+        geometry=('geometry', 'first')
+    ).reset_index()
+    return result_df
     
 # -----------------------------------------------------------------------------
 # @ht.timer
@@ -136,11 +146,12 @@ def preprop_resid(dfr, dfg, pdict):
 
 # -----------------------------------------------------------------------------
 @ht.timer
-def make_streamlit_electric_Charging_resid(dfr1, dfr2):
+def make_streamlit_electric_Charging_resid(dfr1, dfr2, dfr3):
     """Makes Streamlit App with Heatmap of Electric Charging Stations and Residents"""
     
     dframe1 = dfr1.copy()
     dframe2 = dfr2.copy()
+    dframe3 = dfr3.copy()
 
 
     # Streamlit app
@@ -149,7 +160,7 @@ def make_streamlit_electric_Charging_resid(dfr1, dfr2):
     # Create a radio button for layer selection
     # layer_selection = st.radio("Select Layer", ("Number of Residents per PLZ (Postal code)", "Number of Charging Stations per PLZ (Postal code)"))
 
-    layer_selection = st.radio("Select Layer", ("Residents", "Charging_Stations"))
+    layer_selection = st.radio("Select Layer", ("Residents", "Charging_Stations", 'Charging Stations_KW_Grouped'))
 
     # Create a Folium map
     m = folium.Map(location=[52.52, 13.40], zoom_start=10)
@@ -176,7 +187,7 @@ def make_streamlit_electric_Charging_resid(dfr1, dfr2):
         # st.subheader('Residents Data')
         # st.dataframe(gdf_residents2)
 
-    else:
+    elif layer_selection == "Charging_Stations":
         # Create a color map for Numbers
 
         color_map = LinearColormap(colors=['yellow', 'red'], vmin=dframe1['Number'].min(), vmax=dframe1['Number'].max())
@@ -197,6 +208,36 @@ def make_streamlit_electric_Charging_resid(dfr1, dfr2):
         # Display the dataframe for Numbers
         # st.subheader('Numbers Data')
         # st.dataframe(gdf_lstat3)
+    else:
+        # ---------------------------------------------------------
+        # NEW: KW Selection
+        # ---------------------------------------------------------
+        unique_kw = sorted(dframe3['KW'].unique())
+        selected_kw = st.selectbox("Select KW", unique_kw)
+
+        # Filter dataframe by selected KW
+        df_kw = dframe3[dframe3["KW"] == selected_kw]
+
+        # ---------------------------------------------------------
+        # Heatmap for selected KW
+        # ---------------------------------------------------------
+        color_map = LinearColormap(
+            colors=['yellow', 'red'],
+            vmin=df_kw['Number'].min(),
+            vmax=df_kw['Number'].max()
+        )
+
+        for idx, row in df_kw.iterrows():
+            folium.GeoJson(
+                row['geometry'],
+                style_function=lambda x, color=color_map(row['Number']): {
+                    'fillColor': color,
+                    'color': 'black',
+                    'weight': 1,
+                    'fillOpacity': 0.7
+                },
+                tooltip=f"PLZ: {row['PLZ']}, Stations: {row['Number']}, KW: {row['KW']}"
+            ).add_to(m)
 
     # Add color map to the map
     color_map.add_to(m)

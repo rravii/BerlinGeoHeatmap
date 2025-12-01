@@ -26,6 +26,9 @@ def main():
     df_lstat        = pd.read_csv(os.path.join("datasets", pdict["file_lstations"]), sep=';', encoding='latin-1', skiprows=10, header=0)
     df_lstat2       = m1.preprop_lstat(df_lstat, df_geodat_plz, pdict)
     gdf_lstat3      = m1.count_plz_occurrences(df_lstat2)
+
+    # for KW specific counts
+    gdf_lstat3_kw   = m1.count_plz_by_kw(df_lstat2)    
     
     # Load and preprocess residents dataset
     df_residents    = pd.read_csv(os.path.join("datasets", pdict["file_residents"]), encoding='latin-1')
@@ -35,7 +38,8 @@ def main():
     # Start Streamlit map visualization
     m1.make_streamlit_electric_Charging_resid(
         gdf_lstat3,
-        gdf_residents2
+        gdf_residents2,
+        gdf_lstat3_kw
     )
 
 
